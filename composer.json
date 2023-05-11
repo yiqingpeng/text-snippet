@@ -1,6 +1,9 @@
 {
     "name": "revhub/snippet",
     "autoload": {
+        "files": [
+            "src/helpers.php"
+        ],
         "psr-4": {
             "Revhub\\Snippet\\": "src/"
         }
@@ -11,5 +14,6 @@
             "email": "token@flashbay.com"
         }
     ],
-    "require": {}
+    "require": {},
+    "license": ""
 }
