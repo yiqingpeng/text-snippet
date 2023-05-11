@@ -1,0 +1,15 @@
+{
+    "name": "revhub/snippet",
+    "autoload": {
+        "psr-4": {
+            "Revhub\\Snippet\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Token Yi",
+            "email": "token@flashbay.com"
+        }
+    ],
+    "require": {}
+}
