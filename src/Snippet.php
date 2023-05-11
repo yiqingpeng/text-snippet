@@ -6,7 +6,7 @@ class Snippet{
     use TextCleaner;
     
     const THRESHOLD = 0.5;
-    const MAX_LENGHT = 400;
+    const MAX_LENGHT = 600;
 
     const WORD_SPLITTERS = [".", ',','!',"?",":", "'", '"', "\n", "\r", "\t",'(',')', ' ','-','=', '。', '，', '！', '？', '：', '‘', '“', '”', '’'];
     
