@@ -6,7 +6,7 @@ class Snippet{
     use TextCleaner;
     
     const THRESHOLD = 0.5;
-    const MAX_LENGHT = 600;
+    public static $maxLength = 600;
 
     const WORD_SPLITTERS = [".", ',','!',"?",":", "'", '"', "\n", "\r", "\t",'(',')', ' ','-','=', '。', '，', '！', '？', '：', '‘', '“', '”', '’'];
     
@@ -52,8 +52,12 @@ class Snippet{
     protected function initialize(){
         $this->plainText = $this->stripAllTags($this->originalText, true);
         $this->charCountOfFullText = static::getCharCount($this->plainText);
-        $this->truncatedCount = min(static::MAX_LENGHT, floor($this->charCountOfFullText * static::THRESHOLD)); // default value to truncatedCount
+        $this->truncatedCount = $this->getTruncatedCountDefault();
         $this->words = static::splitToWords($this->plainText);
+    }
+
+    protected function getTruncatedCountDefault() {
+        return min(static::$maxLength, floor($this->charCountOfFullText * static::THRESHOLD)); // default value to truncatedCount
     }
     
     public static function splitToWords($text, $caseInsensitive = true){
@@ -143,7 +147,10 @@ class Snippet{
         return $this->charCountOfFullText;
     }
     
-    public function setTruncatedCount($truncatedCount) {
+    public function setTruncatedCount($truncatedCount = null) {
+        if ($truncatedCount <= 0) {
+            $truncatedCount = $this->getTruncatedCountDefault();
+        }
         $this->truncatedCount = $truncatedCount;
         return $this;
     }
