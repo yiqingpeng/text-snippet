@@ -137,7 +137,7 @@ class EnhancedSnippetB extends Snippet{
         $phraseList = $this->phrases;
         $sequences = static::generateOneJumpSequences($phraseList, function ($carry, $position, $phraseIndex, &$stop, $jumpStartPosition, $jumpSteps, &$seq) use ($phraseList, $truncatedCount){
             if ($position <= $jumpStartPosition || $position >= $jumpStartPosition+$jumpSteps) {
-                $carry = $carry + $phraseList[$phraseIndex]->getCharsCount();
+                $carry = (int)$carry + $phraseList[$phraseIndex]->getCharsCount();
                 if ($carry >= $truncatedCount) {
                     $stop = true;
                 }
