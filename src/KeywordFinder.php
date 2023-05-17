@@ -2,7 +2,7 @@
 namespace Revhub\Snippet;
 
 trait KeywordFinder{
-    public static $highlightTemplate = '<span class="bg-yellow">%s</span>';
+    public static $highlightTemplate = '<span class="bg-yellow bg-yellow-200">%s</span>';
     
     public static function getKeywordOccurrence($text, $keywords, &$textHighLighted){
         if (empty($keywords)) {
