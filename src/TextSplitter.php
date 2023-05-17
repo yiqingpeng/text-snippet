@@ -1,10 +1,12 @@
 <?php
 namespace Revhub\Snippet;
 
-class TextSplitter{
-    public static function split($splitChars, $text){
+class TextSplitter
+{
+    public static function split($splitChars, $text)
+    {
         if (is_string($splitChars)) {
-            $splitChars = static::SplitMbStringToChars($splitChars);
+            $splitChars = static::splitMbStringToChars($splitChars);
         }
         $i = 0;
         $index = -1;
@@ -29,7 +31,7 @@ class TextSplitter{
                 break;
             }
             
-            if (in_array($char, $splitChars)) { 
+            if (in_array($char, $splitChars)) {
                 // handle numberic. e.g. 1.3 or 1,000
                 if (in_array($char, [',', '.']) && static::isDigit($preChar) && static::isDigit($nextchar)) {
                     $i++;
@@ -48,55 +50,59 @@ class TextSplitter{
                 $snippet = null;
             } else {
                 $i++;
-            }         
-        } while(true);
+            }
+        } while (true);
         
         $result = [];
-        foreach ($snippets as $snippet){
+        foreach ($snippets as $snippet) {
             $result[] = implode('', $snippet);
         }
         return $result;
     }
     
-    public static function splitToWords($splitChars, $text, $noEmpty = false){
+    public static function splitToWords($splitChars, $text, $noEmpty = false)
+    {
         return static::pregSplit($splitChars, $text, $noEmpty ? PREG_SPLIT_NO_EMPTY : 0);
     }
     
-    public static function SplitMbStringToChars($string, $noEmpty = false){
-        return preg_split('/(?<!^)(?!$)/u',  $string, $noEmpty ? PREG_SPLIT_NO_EMPTY : 0);
+    public static function splitMbStringToChars($string, $noEmpty = false)
+    {
+        return preg_split('/(?<!^)(?!$)/u', $string, $noEmpty ? PREG_SPLIT_NO_EMPTY : 0);
     }
     
-    public static function isDigit($char){
+    public static function isDigit($char)
+    {
         $accii = ord($char);
         return  $accii >= 48 && $accii <= 57;
     }
     
-    public static function pregSplit($splitChars, $text, $flags=0){
+    public static function pregSplit($splitChars, $text, $flags = 0)
+    {
         return preg_split('/'.implode('|', $splitChars).'/u', $text, -1, $flags);//PREG_SPLIT_NO_EMPTY
     }
     
-    public static function isEmptyString($string){
+    public static function isEmptyString($string)
+    {
         return is_null($string) || $string === false || $string === '';
     }
 
-    public static function test(){
+    public static function test()
+    {
         $text = " Y（Hi）, chane.10.67 USB2.0 Mem 2,000, 8 什么，吗？？？ 其2.888不！!! Brown & Cast, V6 Edition - By Wilkins, Schutz, & Linduff [Book Only], Led—Mov Spit's,  Gifts (April 1, 2013 - April 7, 2013) Cur / Les, Eats Vol. 2 (3 Pack): Brunch 'n' Lunch, Laurentis V2: Anytime, Living--How, Lesson - 36-Copy. Ahead P.O.S. K";
         echo $text, '<br>';
-        $s = microtime(true); 
+        $s = microtime(true);
         $words = static::split([".", ',','!',"?",":", "'", '"', "\n", "\r", "\t",'(',')', ' ','-','=', '。', '，', '！', '？', '：', '‘', '“', '”', '’', '&'], $text);
-        $e = microtime(true); 
+        $e = microtime(true);
         echo "Time: " , ($e-$s) * 1000 ,"<br>";
         //$words = static::splitToWords(['\s*&+\s*', '\s*\/+\s*', '\s*\-+\s*','\s*\:+\s*','\s*，+\s*','\s*？+\s*','\s+'], $text);
         $words = static::pregSplit([
             ',\s+', '，\s*', '\.\s+'
         ], $text);
         $s = $e;
-        $e = microtime(true); 
+        $e = microtime(true);
         echo "Time: " , ($e-$s) * 1000 , "<br>";
-        foreach ($words as $word){
+        foreach ($words as $word) {
             echo "<span style='border:1px solid grey;'>", $word, "</span>(", mb_strlen($word) ,")<br>";
         }
     }
 }
-
-//TextSplitter::test();exit;

@@ -1,14 +1,16 @@
 <?php
 namespace Revhub\Snippet;
 
-class WordJudgement{
+class WordJudgement
+{
     protected $usedWords = [];
     public static $repeatAllowedWords = [];
     public static $bannedSuffixWords = [];
     public static $bannedPrefixWords = [];
     
-    public static function setRepeatAllowedWords(array $words){
-        foreach ($words as $word){
+    public static function setRepeatAllowedWords(array $words)
+    {
+        foreach ($words as $word) {
             $word = trim($word);
             if ($word) {
                 static::$repeatAllowedWords[$word] = '';
@@ -16,8 +18,9 @@ class WordJudgement{
         }
     }
     
-    public static function setBannedSuffixWords(array $words){
-        foreach ($words as $word){
+    public static function setBannedSuffixWords(array $words)
+    {
+        foreach ($words as $word) {
             $word = trim($word);
             if ($word) {
                 static::$bannedSuffixWords[$word] = '';
@@ -25,8 +28,9 @@ class WordJudgement{
         }
     }
     
-    public static function setBannedPrefixWords(array $words){
-        foreach ($words as $word){
+    public static function setBannedPrefixWords(array $words)
+    {
+        foreach ($words as $word) {
             $word = trim($word);
             if ($word) {
                 static::$bannedPrefixWords[$word] = '';
@@ -34,30 +38,38 @@ class WordJudgement{
         }
     }
     
-    public static function inRepeatAllowedWords($word){
+    public static function inRepeatAllowedWords($word)
+    {
         return array_key_exists($word, static::$repeatAllowedWords);
     }
     
-    public static function inBannedSuffixWords($word){
+    public static function inBannedSuffixWords($word)
+    {
         return array_key_exists($word, static::$bannedSuffixWords);
     }
     
-    public static function inBannedPrefixWords($word){
+    public static function inBannedPrefixWords($word)
+    {
         return array_key_exists($word, static::$bannedPrefixWords);
     }
     
-    public function setUsedWord($word){
+    public function setUsedWord($word)
+    {
         $this->usedWords[$word] = '';
     }
     
-    public function inUsedWords($word){
+    public function inUsedWords($word)
+    {
         return array_key_exists($word, $this->usedWords);
     }
 
-    public static function isNumber($word){
-        if (is_numeric($word)) return true;
+    public static function isNumber($word)
+    {
+        if (is_numeric($word)) {
+            return true;
+        }
         
-        $decimalLength = strlen(strstr($word,'.',false))-1;
+        $decimalLength = strlen(strstr($word, '.', false))-1;
         if ($decimalLength < 0) {
             $decimalLength = 0;
         }
@@ -65,39 +77,45 @@ class WordJudgement{
         return $numberFormatted == $word;
     }
     
-    public static function isPercentage($word){
+    public static function isPercentage($word)
+    {
         $numberPart = strstr($word, '%', true);
         return str_ends_with($word, '%') && static::isNumber($numberPart);
     }
     
-    public static function isMoney($word){
+    public static function isMoney($word)
+    {
         $count = 0;
         $numberPart = str_replace('$', '', $word, $count);
         return str_starts_with($word, '$') && $count==1 && static::isNumber($numberPart);
     }
     
-    public static function isDate($word){
+    public static function isDate($word)
+    {
         if (preg_match('#^[1-2]\d{3}?/(?:0?[1-9]|1[0-2])/(?:0?[1-9]|[12][0-9]|3[01])$#', $word)) {
             return 1;
-        } else if (preg_match('#^(?:0?[1-9]|1[0-2])/(?:0?[1-9]|[12][0-9]|3[01])/\d{2}$#', $word)) {
+        } elseif (preg_match('#^(?:0?[1-9]|1[0-2])/(?:0?[1-9]|[12][0-9]|3[01])/\d{2}$#', $word)) {
             return 2;
-        } else if (preg_match('/^[1-2]\d{3}?-(?:0?[1-9]|1[0-2])-(?:0?[1-9]|[12][0-9]|3[01])$/', $word)) {
+        } elseif (preg_match('/^[1-2]\d{3}?-(?:0?[1-9]|1[0-2])-(?:0?[1-9]|[12][0-9]|3[01])$/', $word)) {
             return 4;
-        } else if (preg_match('/^(?:0?[1-9]|[12][0-9]|3[01])-(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept|Oct|Nov|Dec)-\d{2}$/', $word)){
+        } elseif (preg_match('/^(?:0?[1-9]|[12][0-9]|3[01])-(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept|Oct|Nov|Dec)-\d{2}$/', $word)) {
             return 5;
         }
         return 0;
     }
     
-    public static function isFraction($word){
+    public static function isFraction($word)
+    {
         return preg_match('#^\d+?/[1-9]\d*?$#', $word);
     }
     
-    public static function isEmail($word){
+    public static function isEmail($word)
+    {
         return filter_var($word, FILTER_VALIDATE_EMAIL);
     }
     
-    public static function isBadWord($word){
+    public static function isBadWord($word)
+    {
         if (static::isNumber($word) || static::isPercentage($word) || static::isMoney($word) || static::isFraction($word) || static::isDate($word) || static::isEmail($word)) {
             return false;
         }
@@ -130,7 +148,8 @@ class WordJudgement{
      * @param type $word
      * @return boolean
      */
-    public static function isBiasWord($word){
+    public static function isBiasWord($word)
+    {
         if (static::isNumber($word) || static::isPercentage($word) || static::isMoney($word) || static::isFraction($word)) {
             return true;
         } else {
@@ -141,7 +160,8 @@ class WordJudgement{
         }
     }
     
-    public static function test(){
+    public static function test()
+    {
         static::setRepeatAllowedWords(explode(', ', 'a, à, aan, an, and, auf, av, de, den, di, die, e, een, ein, el, em, en, et, il, is, le, o, och, of, og, on, op, para, på, på, su, sur, the, til, till, to, um, un, und, van, von, y, zu, can, are, was, were, in, from, under, off, his, for, my, our, next, by, about, with, just, that, after, else, or, not, over, at, but'));
         var_dump(static::isBiasWord('44073.6')); // true
         var_dump(static::isBiasWord('$44073.6')); // true
@@ -154,8 +174,8 @@ class WordJudgement{
         var_dump(static::isNumber('111,000,111'));//true
         var_dump(static::isNumber('111,000,111.009'));//true
         var_dump(static::isNumber('110.00000009'));//true
-        var_dump(static::isNumber('1,1111.98'));//false 
-        var_dump(static::isNumber('1-1111.98'));//false 
+        var_dump(static::isNumber('1,1111.98'));//false
+        var_dump(static::isNumber('1-1111.98'));//false
         var_dump(static::isPercentage('120.09%'));
         var_dump(static::isPercentage('p1%'));
         var_dump(static::isMoney('$11,111.111'));
@@ -184,7 +204,7 @@ class WordJudgement{
             if (static::inRepeatAllowedWords($word)) {
                 $phrase .= " $word";
             } else {
-               if ($obj->inUsedWords($word)) {
+                if ($obj->inUsedWords($word)) {
                     continue;
                 } else {
                     $obj->setUsedWord($word);
@@ -194,5 +214,4 @@ class WordJudgement{
         }
         echo $phrase;
     }
-    
 }

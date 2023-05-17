@@ -1,10 +1,12 @@
 <?php
 namespace Revhub\Snippet;
 
-trait KeywordFinder{
+trait KeywordFinder
+{
     public static $highlightTemplate = '<span class="bg-yellow bg-yellow-200">%s</span>';
     
-    public static function getKeywordOccurrence($text, $keywords, &$textHighLighted){
+    public static function getKeywordOccurrence($text, $keywords, &$textHighLighted)
+    {
         if (empty($keywords)) {
             $textHighLighted = $text;
             return 0;
@@ -29,7 +31,8 @@ trait KeywordFinder{
         return $counter;
     }
     
-    public static function testKeywordFinder(){
+    public static function testKeywordFinder()
+    {
         $keywords = ['Albanian', '好', '语言', 'the'];
         $count = KeywordFinder::getKeywordOccurrence('PHP是世界上最好的语言 Senior police and immigration officials on both sides of the Channel are worried by the growing role of Albanian middlemen in facilitating crossings Albanian.', $keywords, $textHighLighted);
         echo "<style>.bg-yellow{background-color:yellow;}</style>";

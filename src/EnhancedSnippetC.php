@@ -1,7 +1,8 @@
 <?php
 namespace Revhub\Snippet;
 
-class EnhancedSnippetC extends EnhancedSnippetB{
+class EnhancedSnippetC extends EnhancedSnippetB
+{
     
     protected $phraseKeywordsCount = [];
     
@@ -17,11 +18,14 @@ class EnhancedSnippetC extends EnhancedSnippetB{
     
     protected $phrasesUnclassed = [];
     
-    protected function phrasesToSnippet(){
+    protected function phrasesToSnippet()
+    {
         timeCost();
         $lastPhraseId = count($this->phrases) - 1;
         foreach ($this->phrases as $i => $phrase) {
-            if (array_key_exists($i, $this->phraseKeywordsCount)) continue;
+            if (array_key_exists($i, $this->phraseKeywordsCount)) {
+                continue;
+            }
             $leftPhrase = $this->getPhrase($phrase->left);
             $rightPhrase = $this->getPhrase($phrase->right);
             $keywordOccurrenceOnLeft = $leftPhrase && $leftPhrase->kwCount > 0;
@@ -69,7 +73,9 @@ class EnhancedSnippetC extends EnhancedSnippetB{
         
         $counter = 0;
         do {
-            if (empty($stack)) break;
+            if (empty($stack)) {
+                break;
+            }
             $phraseId = array_shift($stack);
             $phrasesPicked[] = $phraseId;
             $counter += $this->phraseCharsCount[$phraseId];
@@ -82,7 +88,8 @@ class EnhancedSnippetC extends EnhancedSnippetB{
         $this->snippets[] = $snippet;
     }
     
-    protected function onPhraseEnd($index){
+    protected function onPhraseEnd($index)
+    {
         $phrase = $this->getPhrase($index);
         if ($phrase) {
             $phrase->kwCount = static::getKeywordOccurrence($phrase->getText(), $this->keywords, $highlighted);
@@ -97,6 +104,4 @@ class EnhancedSnippetC extends EnhancedSnippetB{
             unset($phrase);
         }
     }
-    
 }
-

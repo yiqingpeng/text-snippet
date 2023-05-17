@@ -1,7 +1,8 @@
 <?php
 namespace Revhub\Snippet;
 
-class EnhancedSnippetB extends Snippet{
+class EnhancedSnippetB extends Snippet
+{
     
     const PHRASE_ENDINGS = ['.', '!', '?', ',', '。', '！', '？', '，'];
     
@@ -14,7 +15,8 @@ class EnhancedSnippetB extends Snippet{
     protected $foundKeyword = false;
     public $timeCost = [];
     
-    protected function process($truncateCount = null) {
+    protected function process($truncateCount = null)
+    {
         if (count($this->words) <= 1) {
             $snippet =  $this->plainText;
             $occurrence = static::getKeywordOccurrence($snippet, $this->keywords, $highlighted);
@@ -41,7 +43,8 @@ class EnhancedSnippetB extends Snippet{
         return $this->snippets[$this->indexPicked]['snippet'];
     }
     
-    protected function phrasesToSnippet(){
+    protected function phrasesToSnippet()
+    {
         timeCost();
         $this->buildPhraseSequences();
         $this->timeCost['Build one-jump phrase chains'] = timeCost();
@@ -54,7 +57,8 @@ class EnhancedSnippetB extends Snippet{
         //echo 'Find target time:', $time4-$time3, "S<br>";
     }
     
-    protected function splitToPhrases(){
+    protected function splitToPhrases()
+    {
         $text = $this->plainText;
         $i = 0;
         $index = -1;
@@ -101,14 +105,15 @@ class EnhancedSnippetB extends Snippet{
                 $i = $j;
                 $text = mb_substr($text, $i);
                 $i = 0;
-                $phrase = null; 
+                $phrase = null;
             } else {
                 $i++;
-            }         
-        } while(true);
+            }
+        } while (true);
     }
     
-    protected function onPhraseEnd($index){
+    protected function onPhraseEnd($index)
+    {
         $phrase = $this->getPhrase($index);
         if ($phrase) {
             $phrase->kwCount = static::getKeywordOccurrence($phrase->getText(), $this->keywords, $highlighted);
@@ -120,7 +125,8 @@ class EnhancedSnippetB extends Snippet{
         }
     }
     
-    protected function createBasicSnippet($truncateCount = null) {
+    protected function createBasicSnippet($truncateCount = null)
+    {
         $snippet = parent::createBasicSnippet($truncateCount);
         $this->snippets[0] = [
             'snippet' => $snippet,
@@ -132,10 +138,11 @@ class EnhancedSnippetB extends Snippet{
         $this->suffix = '...';
     }
     
-    protected function buildPhraseSequences(){
+    protected function buildPhraseSequences()
+    {
         $truncatedCount = $this->getTruncatedCount();
         $phraseList = $this->phrases;
-        $sequences = static::generateOneJumpSequences($phraseList, function ($carry, $position, $phraseIndex, &$stop, $jumpStartPosition, $jumpSteps, &$seq) use ($phraseList, $truncatedCount){
+        $sequences = static::generateOneJumpSequences($phraseList, function ($carry, $position, $phraseIndex, &$stop, $jumpStartPosition, $jumpSteps, &$seq) use ($phraseList, $truncatedCount) {
             if ($position <= $jumpStartPosition || $position >= $jumpStartPosition+$jumpSteps) {
                 $carry = (int)$carry + $phraseList[$phraseIndex]->getCharsCount();
                 if ($carry >= $truncatedCount) {
@@ -150,7 +157,8 @@ class EnhancedSnippetB extends Snippet{
         return $this;
     }
     
-    public static function generateOneJumpSequences($list, callable $callback){
+    public static function generateOneJumpSequences($list, callable $callback)
+    {
         $indexList = array_keys($list);
         $sequences = [];
         while ($indexList) {
@@ -175,7 +183,8 @@ class EnhancedSnippetB extends Snippet{
         return $sequences;
     }
     
-    protected function generateCandidatePhraseSequences(){
+    protected function generateCandidatePhraseSequences()
+    {
         // make the snippet length to fit the expected
         $limitCount = $this->getTruncatedCount();
         $sequenceToSnippet = [];
@@ -194,12 +203,13 @@ class EnhancedSnippetB extends Snippet{
     /**
      * Change phrase sequence like "1-3-4-5" to snippet object{snippet; charCount; snippetHighlighted; occurrence}
      * @param type $phraseIndexes
-     * @param type $snippetLength 
+     * @param type $snippetLength
      * @param array $phraseList
      * @param type $keywords
      * @return type
      */
-    public static function parseSequenceToSnippet($phraseIndexes, $snippetLength, array $phraseList, $keywords){
+    public static function parseSequenceToSnippet($phraseIndexes, $snippetLength, array $phraseList, $keywords)
+    {
         $lastPhraseIndex = count($phraseList) - 1;
         $plainText = '';
         $textWithMidApostrophe = '';
@@ -246,7 +256,9 @@ class EnhancedSnippetB extends Snippet{
                 $suffix = '';
             }
             
-            if ($counter >  $snippetLength)break;
+            if ($counter >  $snippetLength) {
+                break;
+            }
             
             if ($i < $last) {
                 $nextIndex = $phraseIndexes[$i+1];
@@ -264,11 +276,14 @@ class EnhancedSnippetB extends Snippet{
         ];
     }
     
-    protected static function searchLastPosition($text, $keywords, &$keywordHitted = ''){
+    protected static function searchLastPosition($text, $keywords, &$keywordHitted = '')
+    {
         $maxPos = -1;
         foreach ($keywords as $keyword) {
             $pos = mb_strrpos($text, $keyword);
-            if (false === $pos) continue;
+            if (false === $pos) {
+                continue;
+            }
             if ($pos > $maxPos) {
                 $maxPos = $pos;
                 $keywordHitted = $keyword;
@@ -278,11 +293,14 @@ class EnhancedSnippetB extends Snippet{
         return $maxPos;
     }
     
-    protected static function searchFirstPosition($text, $keywords, &$keywordHitted = null){
-        $minPos = -1;       
+    protected static function searchFirstPosition($text, $keywords, &$keywordHitted = null)
+    {
+        $minPos = -1;
         foreach ($keywords as $keyword) {
             $pos = mb_strpos($text, $keyword);
-            if (false === $pos) continue;
+            if (false === $pos) {
+                continue;
+            }
             if ($minPos == -1 || $pos < $minPos) {
                 $minPos = $pos;
                 $keywordHitted = $keyword;
@@ -295,7 +313,8 @@ class EnhancedSnippetB extends Snippet{
     /**
      * Find the snippet which has the most keyword occurrence.
      */
-    protected function findTargetSnippet(){
+    protected function findTargetSnippet()
+    {
         $max = 0;
         $i = 0;
         foreach ($this->candidatePhraseSequences as $seq => $snippet) {
@@ -307,35 +326,43 @@ class EnhancedSnippetB extends Snippet{
         }
     }
     
-    protected function getPhrase($index){
-        if (!isset($this->phrases[$index])) return null;
+    protected function getPhrase($index)
+    {
+        if (!isset($this->phrases[$index])) {
+            return null;
+        }
          return $this->phrases[$index];
     }
     
-    protected function setPhrase($index, $phrase){
+    protected function setPhrase($index, $phrase)
+    {
         $this->phrases[$index] = $phrase;
         return $this;
     }
     
-    protected function highlight(){
+    protected function highlight()
+    {
         return $this->snippets[$this->indexPicked]['snippetHighlighted'];
     }
     
-    public function printDebugInfo(){
+    public function printDebugInfo()
+    {
         $this->printDebugInfoCommon();
         echo "<p>Phrases</p>";
         echo "<ul>";
         foreach ($this->phrases as $i => $phrase) {
-            echo sprintf('<li class="phrase-%d" style="padding:5px;">%d. <b style="color:red;">{</b>%s<b style="color:red;">}</b><i style="margin-left:5px;">(length: %d, keywords: %d)</i></li>', 
-                    $i,
-                    $i,
-                    $phrase->getText(true),
-                    $phrase->getCharsCount(),
-                    $phrase->kwCount);
+            echo sprintf(
+                '<li class="phrase-%d" style="padding:5px;">%d. <b style="color:red;">{</b>%s<b style="color:red;">}</b><i style="margin-left:5px;">(length: %d, keywords: %d)</i></li>',
+                $i,
+                $i,
+                $phrase->getText(true),
+                $phrase->getCharsCount(),
+                $phrase->kwCount
+            );
         }
         echo "</ul>";
         
-        if (!empty($this->timeCost)){
+        if (!empty($this->timeCost)) {
             echo "<p>Time Cost</p>";
             echo "<ol>";
             foreach ($this->timeCost as $desc => $time) {
@@ -351,12 +378,14 @@ class EnhancedSnippetB extends Snippet{
             if ($i == $this->indexPicked) {
                 $selectedSeq = $item['seq'];
             }
-            echo sprintf('<li class="%s" style="padding:5px;">[%s] <b style="color:red;">{</b>%s<b style="color:red;">}</b><i style="margin-left:5px;">(length: %d, keywords: <span style="color:red;">%d</span>)</i></li>', 
-                    $i == $this->indexPicked ? 'row-highlight' : '', 
-                    $item['seq'],
-                    $item['snippetHighlighted'],
-                    static::getCharCount($item['snippet']),
-                    $item['occurrence']);
+            echo sprintf(
+                '<li class="%s" style="padding:5px;">[%s] <b style="color:red;">{</b>%s<b style="color:red;">}</b><i style="margin-left:5px;">(length: %d, keywords: <span style="color:red;">%d</span>)</i></li>',
+                $i == $this->indexPicked ? 'row-highlight' : '',
+                $item['seq'],
+                $item['snippetHighlighted'],
+                static::getCharCount($item['snippet']),
+                $item['occurrence']
+            );
         }
         echo "</ol>";
         echo "<style>";
@@ -365,5 +394,4 @@ class EnhancedSnippetB extends Snippet{
         }
         echo "</style>";
     }
-
 }
