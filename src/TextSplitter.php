@@ -64,7 +64,25 @@ class TextSplitter
     {
         return static::pregSplit($splitChars, $text, $noEmpty ? PREG_SPLIT_NO_EMPTY : 0);
     }
-    
+
+    public static function splitToKeyWords($keyPhrase, $noEmpty = false)
+    {
+        $phrases = [];
+        $singleKeyWords = preg_replace_callback(
+            '/"(.*?)"/',
+            function ($matches) use (&$phrases) {
+                $phrases[] = $matches[1];
+                return '';
+            },
+            $keyPhrase
+        );
+        $keywords = array_merge($phrases, static::pregSplit(['\s+'], $singleKeyWords, $noEmpty ? PREG_SPLIT_NO_EMPTY : 0));
+        if ($noEmpty) {
+            $keywords = array_filter($keywords);
+        }
+        return $keywords;
+    }
+ 
     public static function splitMbStringToChars($string, $noEmpty = false)
     {
         return preg_split('/(?<!^)(?!$)/u', $string, $noEmpty ? PREG_SPLIT_NO_EMPTY : 0);

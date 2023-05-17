@@ -33,8 +33,13 @@ trait KeywordFinder
     
     public static function testKeywordFinder()
     {
-        $keywords = ['Albanian', '好', '语言', 'the'];
-        $count = KeywordFinder::getKeywordOccurrence('PHP是世界上最好的语言 Senior police and immigration officials on both sides of the Channel are worried by the growing role of Albanian middlemen in facilitating crossings Albanian.', $keywords, $textHighLighted);
+        $keywords = ['Albanian', '好', '语言', 'the Channel', 'the']; // Find words list
+        // $keywords = "Both sides"; // Find a phrase
+        $count = KeywordFinder::getKeywordOccurrence(
+            'PHP是世界上最好的语言 Senior police and immigration officials on both sides of the Channel are worried by the growing role of Albanian middlemen in facilitating crossings Albanian. Both them are on the same sides. On Both Sides of the channel. On both side of the channel.',
+            $keywords,
+            $textHighLighted
+        );
         echo "<style>.bg-yellow{background-color:yellow;}</style>";
         echo $count, '<br>';
         echo $textHighLighted;

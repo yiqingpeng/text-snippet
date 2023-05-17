@@ -32,7 +32,7 @@ class Snippet
         $this->originalText = $originalText;
         $this->language = $language;
         if ($keyphrase) {
-            $wordsofPhrase = TextSplitter::splitToWords(['\s+'], $keyphrase, true);
+            $wordsofPhrase = TextSplitter::splitToKeyWords($keyphrase, true);
             $this->keywords = static::cleanupKeywords($wordsofPhrase, $this->language);
         }
         $this->initialize();
