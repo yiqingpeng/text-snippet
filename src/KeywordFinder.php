@@ -24,10 +24,15 @@ trait KeywordFinder
         
         $regExp = sprintf('~%s~i', implode('|', $regExps));
         $counter = 0;
-        $textHighLighted = preg_replace_callback($regExp, function ($matches) use (&$counter) {
-            $counter++;
-            return sprintf(self::$highlightTemplate, $matches[0]);
-        }, $text);
+        $textHighLighted = preg_replace_callback(
+            $regExp,
+            function ($matches) {
+                return sprintf(self::$highlightTemplate, $matches[0]);
+            },
+            $text,
+            -1,
+            $counter
+        );
         return $counter;
     }
     
