@@ -71,7 +71,7 @@ class TextSplitter
         $singleKeyWords = preg_replace_callback(
             '/"(.*?)"/',
             function ($matches) use (&$phrases) {
-                $phrases[] =preg_replace('/[\s　]+/', ' ', $matches[1]);
+                $phrases[] =preg_replace('/[\s　]+/u', ' ', $matches[1]);
                 return '';
             },
             $keyPhrase
