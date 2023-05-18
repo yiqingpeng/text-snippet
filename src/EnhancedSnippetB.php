@@ -217,7 +217,9 @@ class EnhancedSnippetB extends Snippet
         $counter = 0;
         $kwCount = 0;
         $charCount = 0;
-        $isCutted = false;
+        $isCuttedHead = false;
+        $lenghtCuttedHead = 0;
+        $isCuttedTail = false;
         $prefix = '';
         $suffix = '...';
         
@@ -232,27 +234,33 @@ class EnhancedSnippetB extends Snippet
             } else {
                 $keptCount = $snippetLength - $charCount;
                 if ($keptCount > 0) {
-                    $keywordPosition = static::searchFirstPosition($phraseObj->getText(), $keywords, $keywordHitted);
-                    $phraseText = static::substringWithoutWordBreaking($phraseObj->getText(), 0, max($keptCount, $keywordPosition + static::getCharCount($keywordHitted)));
+                    $phraseFullText = $phraseObj->getText();
+                    $keywordPosition = static::searchFirstPosition($phraseFullText, $keywords, $keywordHitted);
+                    $startPos = static::getStartingPosToCut($phraseFullText, $keptCount, $keywordPosition, static::getCharCount($keywordHitted));
+                    if ($startPos > 0) {
+                        $isCuttedHead = true;
+                        $lenghtCuttedHead = $startPos;
+                    }
+                    $phraseText = static::substringWithoutWordBreaking($phraseFullText, $startPos, $keptCount);
                     $realCount = static::getCharCount($phraseText);
                     $charCount += $realCount;
 
                     $_kwCount = static::getKeywordOccurrence($phraseText, $keywords, $_textHighLighted);
                     $kwCount +=  $_kwCount;
                     $textWithMidApostrophe .= $_textHighLighted;
-                    if ($realCount < $phraseObj->getCharsCount()) {
-                        $isCutted = true;
+                    if ($realCount + $lenghtCuttedHead < $phraseObj->getCharsCount()) {
+                        $isCuttedTail = true;
                     }
                 }
             }
             
             $plainText .= $phraseText;
             
-            if ($i == 0 && $index > 0) {
-                $prefix = '...';
+            if ($i == 0 && ($index > 0 || $isCuttedHead)) {
+                $prefix = '... ';
             }
             
-            if ($i == $last && $index == $lastPhraseIndex && !$isCutted) {
+            if ($i == $last && $index == $lastPhraseIndex && !$isCuttedTail) {
                 $suffix = '';
             }
             
@@ -266,7 +274,7 @@ class EnhancedSnippetB extends Snippet
                     $textWithMidApostrophe .= ' ... ';
                 }
             }
-        }
+        } // foreach
         
         return [
             'snippet' => $plainText,
@@ -275,12 +283,35 @@ class EnhancedSnippetB extends Snippet
             'occurrence' => $kwCount,
         ];
     }
+
+    public static function getStartingPosToCut($text, $truncatedCount, $keywordPos, $keywordLength)
+    {
+        $pos = $keywordPos + $keywordLength - $truncatedCount;
+        if ($pos < 0) {
+            $pos = 0;
+        }
+        if (CJKLanguageHelper::isCjk($text) || 0 === $pos) {
+            return $pos;
+        }
+
+        $cursorPos = $pos - 1; // $cursorPos >= 0
+        do {
+            $char = mb_substr($text, $cursorPos, 1);
+            if (preg_match('#^[^\p{L}\p{N}\p{S}\p{Pc}]$#', $char) || $cursorPos == $keywordPos - 1) {
+                $pos = $cursorPos + 1;
+                break;
+            }
+            $cursorPos++;
+        } while ($cursorPos <= $keywordPos);
+        
+        return $pos;
+    }
     
     protected static function searchLastPosition($text, $keywords, &$keywordHitted = '')
     {
         $maxPos = -1;
         foreach ($keywords as $keyword) {
-            $pos = mb_strrpos($text, $keyword);
+            $pos = mb_strripos($text, $keyword);
             if (false === $pos) {
                 continue;
             }
@@ -297,7 +328,7 @@ class EnhancedSnippetB extends Snippet
     {
         $minPos = -1;
         foreach ($keywords as $keyword) {
-            $pos = mb_strpos($text, $keyword);
+            $pos = mb_stripos($text, $keyword);
             if (false === $pos) {
                 continue;
             }

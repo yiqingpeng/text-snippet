@@ -266,7 +266,7 @@ class Snippet
         $charOnBreakpoint = mb_substr($truncatedString, -1, 1);
         $trace[] = ["The last char (LC) of the truncated string: {{$charOnBreakpoint}}", $truncatedString];
         if (!in_array($charOnBreakpoint, static::WORD_SPLITTERS)) {// The last char is not punctuation mark or space
-            $charAfterBreakpoint = mb_substr($string, $length, 1);
+            $charAfterBreakpoint = mb_substr($string, $start + $length, 1);
             $trace[] = ["The next char(NC) to LC: {{$charAfterBreakpoint}}", $truncatedString];
             if (!static::isEmptyChar($charAfterBreakpoint) && !in_array($charAfterBreakpoint, static::WORD_SPLITTERS)) {
                 // Breaking point happens in a word. we should ignore the broken part.
