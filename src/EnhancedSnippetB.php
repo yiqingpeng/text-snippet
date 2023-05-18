@@ -15,17 +15,10 @@ class EnhancedSnippetB extends Snippet
     protected $foundKeyword = false;
     public $timeCost = [];
     
-    protected function process($truncateCount = null)
+    protected function process()
     {
         if (count($this->words) <= 1) {
-            $snippet =  $this->plainText;
-            $occurrence = static::getKeywordOccurrence($snippet, $this->keywords, $highlighted);
-            $this->snippets[0] = [
-                'snippet' => $snippet,
-                'snippetHighlighted' => $highlighted,
-                'occurrence' => $occurrence
-            ];
-            $this->indexPicked = 0;
+            $this->createBasicSnippet();
         } else {
             if (empty($this->keywords)) {
                 $this->createBasicSnippet();
@@ -125,15 +118,22 @@ class EnhancedSnippetB extends Snippet
         }
     }
     
-    protected function createBasicSnippet($truncateCount = null)
+    protected function createBasicSnippet()
     {
-        $snippet = parent::createBasicSnippet($truncateCount);
+        $snippet = parent::createBasicSnippet(); // Get pure snippet.
+        $occurrence = 0;
+        $highlighted = $snippet;
+        if ($this->keywords) {
+            $occurrence = static::getKeywordOccurrence($snippet, $this->keywords, $highlighted);
+        }
+        $msg = count($this->words) <= 1 ? '(Original text has only one word)' : '(Keywords not found/not present)';
         $this->snippets[0] = [
             'snippet' => $snippet,
-            'snippetHighlighted' => $snippet,
-            'occurrence' => 0,
-            'seq' => ''
+            'snippetHighlighted' => $highlighted,
+            'occurrence' => $occurrence,
+            'seq' => 'Basic snippet' . $msg
         ];
+
         $this->indexPicked = 0;
         $this->suffix = '...';
     }

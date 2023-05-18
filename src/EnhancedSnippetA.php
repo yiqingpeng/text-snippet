@@ -9,7 +9,7 @@ class EnhancedSnippetA extends Snippet
     protected $snippets = [];
     protected $indexPicked;
     
-    protected function process($truncateCount = null)
+    protected function process()
     {
         $originalText = $this->originalText;
         $occurrenceMax = 0;

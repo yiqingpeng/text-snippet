@@ -78,7 +78,8 @@ class Snippet
     
     public function getSnippet($truncateLength = null, $withApostrophe = true)
     {
-        $snippet = $this->process($truncateLength);
+        $this->setTruncatedCount($truncateLength);
+        $snippet = $this->process();
         $snippet = static::stripSuffixChars($snippet);
         $this->setSnippet($snippet); // save clean snippet text
         
@@ -110,7 +111,7 @@ class Snippet
     
     protected function highlight()
     {
-        $keywordCount = $this->getKeywordOccurrence($this->snippet, $this->keywords, $highligtedText);
+        $keywordCount = static::getKeywordOccurrence($this->snippet, $this->keywords, $highligtedText);
         $this->recordDebugStep('Highlighted text' . "(keywords: $keywordCount)", $this->snippet, $highligtedText);
         return $highligtedText;
     }
@@ -123,27 +124,44 @@ class Snippet
         return $snippet;
     }
     
-    protected function process($truncateLength = null)
+    protected function process()
     {
-        if (count($this->words) <= 1) {
-            $snippet =  $this->plainText;
-        } else {
-            $snippet = $this->createBasicSnippet($truncateLength);
-        }
+        $snippet = $this->createBasicSnippet();
+        
         return $snippet;
     }
-    
-    protected function createBasicSnippet($truncatedCount = null)
+
+    protected function cutOffSingleWord($text)
     {
-        $truncatedCount = $truncatedCount ?: $this->getTruncatedCount();
-        $snippet = static::substringWithoutWordBreaking($this->plainText, 0, $truncatedCount, $trace);
-        foreach ($trace as $msg) {
-            $this->recordDebugStep($msg[0], $msg[1]);
+        $start = 0;
+        if (static::getCharCount($text) > static::$maxLength) {
+            $text = mb_substr($text, $start, static::$maxLength);
+            $this->recordDebugStep("The single word is too long, cut off it up to the Truncated Count", $text);
         }
-        if (static::isEmptyChar($snippet)) {
-            $snippet = $this->words[0];
+        return $text;
+    }
+    
+    /**
+     * This can cut off a text up to the required length, but if a keyword
+     * is located out of the length, the output text will lost the keyword.
+     */
+    protected function createBasicSnippet()
+    {
+        $truncatedCount = $this->getTruncatedCount();
+        if (count($this->words) <= 1) {
+            $snippet = $this->cutOffSingleWord($this->plainText);
+        } else {
+            $snippet = static::substringWithoutWordBreaking($this->plainText, 0, $truncatedCount, $trace);
+            foreach ($trace as $msg) {
+                $this->recordDebugStep($msg[0], $msg[1]);
+            }
+            
+            if (static::isEmptyChar($snippet)) {
+                $this->recordDebugStep("The snippet is empty after truncated then take the first word as the snippet", $this->words[0]);
+                $snippet = $this->cutOffSingleWord($this->words[0]);
+            }
         }
-        $this->recordDebugStep("The snippet is empty after truncated then take the first word as the snippet", $snippet);
+        $this->recordDebugStep("The pure snippet generated", $snippet);
         return $snippet;
     }
     
@@ -241,6 +259,10 @@ class Snippet
         $trace[] = ["Before truncating: ", $string];
         $truncatedString = mb_substr($string, $start, $length);
         $trace[] = ["Truncated from $start to $length: ", $truncatedString];
+        if (CJKLanguageHelper::isCjk($truncatedString)) {
+            $trace[] = ["CJK detected, so no further process to do: ", $truncatedString];
+            return $truncatedString;
+        }
         $charOnBreakpoint = mb_substr($truncatedString, -1, 1);
         $trace[] = ["The last char (LC) of the truncated string: {{$charOnBreakpoint}}", $truncatedString];
         if (!in_array($charOnBreakpoint, static::WORD_SPLITTERS)) {// The last char is not punctuation mark or space

@@ -68,7 +68,7 @@ class EnhancedSnippetC extends EnhancedSnippetB
             $stack = array_merge($stack, array_reverse($leftPhraseIds), $rightPhraseIds);
         }
         $stack = array_merge($stack, $this->phrasesClamped, $this->phraseSidecarOnHead, $this->phraseSidecarOnEnd, $this->phrasesSidecar, $this->phrasesUnclassed);
-        $this->timeCost[sprintf('Create list for choosing [ %s ] ', implode('>', $stack))] = timeCost();
+        $this->timeCost[sprintf('Create phrase list by picking priority [ %s ] ', implode('>', $stack))] = timeCost();
         $phrasesPicked = [];
         
         $counter = 0;
@@ -83,7 +83,7 @@ class EnhancedSnippetC extends EnhancedSnippetB
         sort($phrasesPicked);
         $this->timeCost[sprintf('Pick phrases and sort [ %s ] ', implode('-', $phrasesPicked))] = timeCost();
         $snippet = static::parseSequenceToSnippet($phrasesPicked, $this->getTruncatedCount(), $this->phrases, $this->keywords);
-        $this->timeCost['Convert to snippet'] = timeCost();
+        $this->timeCost['Convert ids to snippet'] = timeCost();
         $snippet['seq'] = implode('-', $phrasesPicked);
         $this->snippets[] = $snippet;
     }
