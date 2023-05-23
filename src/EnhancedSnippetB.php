@@ -235,7 +235,7 @@ class EnhancedSnippetB extends Snippet
                 $keptCount = $snippetLength - $charCount;
                 if ($keptCount > 0) {
                     $phraseFullText = $phraseObj->getText();
-                    $keywordPosition = static::searchFirstPosition($phraseFullText, $keywords, $keywordHitted);
+                    $keywordPosition = static::searchLastPosition($phraseFullText, $keywords, $keywordHitted);
                     $startPos = static::getStartingPosToCut($phraseFullText, $keptCount, $keywordPosition, static::getCharCount($keywordHitted));
                     if ($startPos > 0) {
                         $isCuttedHead = true;
@@ -290,13 +290,21 @@ class EnhancedSnippetB extends Snippet
         if ($pos < 0) {
             $pos = 0;
         }
-        if (CJKLanguageHelper::isCjk($text) || 0 === $pos) {
+        if (0 === $pos) {
             return $pos;
         }
 
         $cursorPos = $pos - 1; // $cursorPos >= 0
         do {
             $char = mb_substr($text, $cursorPos, 1);
+            if (CJKLanguageHelper::isCjk($char)) {
+                if ($cursorPos == $pos - 1) {
+                    $pos = $cursorPos + 1;
+                } else {
+                    $pos = $cursorPos;
+                }
+                break;
+            }
             if (preg_match('#^[^\p{L}\p{N}\p{S}\p{Pc}]$#', $char) || $cursorPos == $keywordPos - 1) {
                 $pos = $cursorPos + 1;
                 break;
@@ -324,7 +332,7 @@ class EnhancedSnippetB extends Snippet
         return $maxPos;
     }
     
-    protected static function searchFirstPosition($text, $keywords, &$keywordHitted = null)
+    protected static function searchFirstPosition($text, $keywords, &$keywordHitted = '')
     {
         $minPos = -1;
         foreach ($keywords as $keyword) {

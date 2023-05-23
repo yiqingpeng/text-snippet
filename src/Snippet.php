@@ -259,15 +259,19 @@ class Snippet
         $trace[] = ["Before truncating: ", $string];
         $truncatedString = mb_substr($string, $start, $length);
         $trace[] = ["Truncated from $start to $length: ", $truncatedString];
-        if (CJKLanguageHelper::isCjk($truncatedString)) {
-            $trace[] = ["CJK detected, so no further process to do: ", $truncatedString];
-            return $truncatedString;
-        }
         $charOnBreakpoint = mb_substr($truncatedString, -1, 1);
         $trace[] = ["The last char (LC) of the truncated string: {{$charOnBreakpoint}}", $truncatedString];
+        if (CJKLanguageHelper::isCjk($charOnBreakpoint)) {
+            $trace[] = ["The LC is CJK, so no further process to do: ", $truncatedString];
+            return $truncatedString;
+        }
         if (!in_array($charOnBreakpoint, static::WORD_SPLITTERS)) {// The last char is not punctuation mark or space
             $charAfterBreakpoint = mb_substr($string, $start + $length, 1);
             $trace[] = ["The next char(NC) to LC: {{$charAfterBreakpoint}}", $truncatedString];
+            if (CJKLanguageHelper::isCjk($charAfterBreakpoint)) {
+                $trace[] = ["The NC is CJK, so no further process to do: ", $truncatedString];
+                return $truncatedString;
+            }
             if (!static::isEmptyChar($charAfterBreakpoint) && !in_array($charAfterBreakpoint, static::WORD_SPLITTERS)) {
                 // Breaking point happens in a word. we should ignore the broken part.
                 $wordsInTruncatedString = static::splitToWords($truncatedString, false);
