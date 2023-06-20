@@ -32,6 +32,7 @@ class Snippet
         $this->originalText = $originalText;
         $this->language = $language;
         if ($keyphrase) {
+            $keyphrase = trim(str_replace(['...'], ' ', $keyphrase));
             $wordsofPhrase = TextSplitter::splitToKeyWords($keyphrase, true);
             $this->keywords = static::cleanupKeywords($wordsofPhrase, $this->language);
         }
